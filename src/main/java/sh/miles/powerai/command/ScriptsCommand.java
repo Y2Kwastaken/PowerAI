@@ -57,7 +57,9 @@ public final class ScriptsCommand {
                         .executes(this::list))
                 .then(Commands.literal("stop")
                         .executes(this::stop))
-                .then(scriptArgument())
+                // shorthand /scripts <name>, deliberately without suggestions so tab completion only shows subcommands
+                .then(Commands.argument("name", StringArgumentType.word())
+                        .executes(this::run))
                 .build();
     }
 
