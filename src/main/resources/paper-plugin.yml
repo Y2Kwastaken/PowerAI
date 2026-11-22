@@ -1,0 +1,122 @@
+name: PowerAI
+version: '${version}'
+main: sh.miles.powerai.PowerAI
+description: Runs Lua scripts with a per-tick time budget
+api-version: '${apiVersion}'
+permissions:
+  powerai.lua.function.*:
+    description: Every Lua function and any extras
+    default: op
+    children:
+      powerai.lua.function.print: true
+      powerai.lua.functions.print.full: true
+      powerai.lua.function.actionbar: true
+      powerai.lua.function.title: true
+      powerai.lua.function.sound: true
+      powerai.lua.function.sound.broadcast: true
+      powerai.lua.function.position: true
+      powerai.lua.function.look: true
+      powerai.lua.function.block: true
+      powerai.lua.function.block.load: true
+      powerai.lua.function.setblock: true
+      powerai.lua.function.setblock.load: true
+      powerai.lua.function.explode: true
+      powerai.lua.function.explode.load: true
+      powerai.lua.function.lightning: true
+      powerai.lua.function.lightning.load: true
+      powerai.lua.function.spawn: true
+      powerai.lua.function.spawn.load: true
+      powerai.lua.function.particle: true
+      powerai.lua.function.teleport: true
+      powerai.lua.function.launch: true
+      powerai.lua.function.give: true
+      powerai.lua.function.command: true
+      powerai.lua.function.fill: true
+      powerai.lua.function.fill.load: true
+      powerai.lua.function.time: true
+      powerai.lua.function.weather: true
+      powerai.lua.function.players: true
+  powerai.lua.function.print:
+    description: print()
+    default: true
+  powerai.lua.function.actionbar:
+    description: actionbar()
+    default: true
+  powerai.lua.function.title:
+    description: title()
+    default: true
+  powerai.lua.function.sound:
+    description: sound()
+    default: true
+  powerai.lua.function.position:
+    description: position()
+    default: true
+  powerai.lua.function.look:
+    description: look()
+    default: true
+  powerai.lua.function.block:
+    description: block()
+    default: true
+  powerai.lua.function.setblock:
+    description: setBlock()
+    default: true
+  powerai.lua.function.explode:
+    description: explode()
+    default: true
+  powerai.lua.function.lightning:
+    description: lightning()
+    default: true
+  powerai.lua.function.spawn:
+    description: spawn()
+    default: true
+  powerai.lua.function.particle:
+    description: particle()
+    default: true
+  powerai.lua.function.teleport:
+    description: teleport()
+    default: true
+  powerai.lua.function.launch:
+    description: launch()
+    default: true
+  powerai.lua.function.give:
+    description: give()
+    default: true
+  powerai.lua.function.command:
+    description: command(), still limited to commands the player can run themselves
+    default: true
+  powerai.lua.function.fill:
+    description: fill()
+    default: true
+  powerai.lua.function.time:
+    description: time()
+    default: true
+  powerai.lua.function.weather:
+    description: weather()
+    default: true
+  powerai.lua.function.players:
+    description: players()
+    default: true
+  powerai.lua.functions.print.full:
+    description: print() can use click and hover tags
+    default: op
+  powerai.lua.function.sound.broadcast:
+    description: sound(..., true) plays for everyone nearby
+    default: op
+  powerai.lua.function.block.load:
+    description: block() can load unloaded chunks
+    default: op
+  powerai.lua.function.setblock.load:
+    description: setBlock() can load unloaded chunks
+    default: op
+  powerai.lua.function.explode.load:
+    description: explode() can load unloaded chunks
+    default: op
+  powerai.lua.function.lightning.load:
+    description: lightning() can load unloaded chunks
+    default: op
+  powerai.lua.function.spawn.load:
+    description: spawn() can load unloaded chunks
+    default: op
+  powerai.lua.function.fill.load:
+    description: fill() can load unloaded chunks
+    default: op

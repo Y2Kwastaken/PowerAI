@@ -1,0 +1,21 @@
+[versions]
+minecraft = "26.3"
+paper-api = "26.3.build.+"
+cobalt = "0.9.10"
+slf4j = "2.0.20"
+junit = "6.0.0"
+run-paper = "3.1.0"
+shadow = "9.6.1"
+
+[libraries]
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
+cobalt = { module = "cc.tweaked:cobalt", version.ref = "cobalt" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+[plugins]
+run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run-paper" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

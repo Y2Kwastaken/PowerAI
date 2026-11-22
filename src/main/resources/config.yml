@@ -1,0 +1,5 @@
+# long runtimePerTickMillis, long scriptAllowancePerTickMillis, long totalScriptAllowanceMillis
+# Values all in milliseconds determines user script control values
+runtime_per_tick: 10 # total scripts are allowed 25% of a tick
+script_allowance_per_tick: 2 # 2 milliseconds per tick or 4% of a tick
+total_script_allowance: 1000 # 1 second
