@@ -17,8 +17,12 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import sh.miles.powerai.data.MarketplaceStore;
 import sh.miles.powerai.dialog.ScriptManagerDialog;
+import sh.miles.powerai.dialog.ScriptStorePageView;
 import sh.miles.powerai.lua.LuaScriptExecutor;
 import sh.miles.powerai.lua.global.LuaGlobals;
 import sh.miles.powerai.util.PlayerStorage;
@@ -34,6 +38,9 @@ public final class ScriptsCommand {
     private static final DynamicCommandExceptionType UNKNOWN_SCRIPT = new DynamicCommandExceptionType(
             name -> MessageComponentSerializer.message().serialize(text("You don't have a script named '" + name + "'"))
     );
+    private static final DynamicCommandExceptionType UNKNOWN_PLAYER = new DynamicCommandExceptionType(
+            name -> MessageComponentSerializer.message().serialize(text("No player named '" + name + "' has played on this server"))
+    );
     private static final SimpleCommandExceptionType NESTED_SCRIPT = new SimpleCommandExceptionType(
             MessageComponentSerializer.message().serialize(text("Scripts can't start other scripts"))
     );
@@ -42,9 +49,11 @@ public final class ScriptsCommand {
     );
 
     private final LuaScriptExecutor executor;
+    private final MarketplaceStore store;
 
-    public ScriptsCommand(final LuaScriptExecutor executor) {
+    public ScriptsCommand(final LuaScriptExecutor executor, final MarketplaceStore store) {
         this.executor = executor;
+        this.store = store;
     }
 
     public LiteralCommandNode<CommandSourceStack> build() {
@@ -57,6 +66,11 @@ public final class ScriptsCommand {
                         .executes(this::list))
                 .then(Commands.literal("stop")
                         .executes(this::stop))
+                .then(Commands.literal("store")
+                        .executes(this::openStore)
+                        .then(Commands.argument("player", StringArgumentType.word())
+                                .suggests(this::suggestPlayers)
+                                .executes(this::openStoreFor)))
                 // shorthand /scripts <name>, deliberately without suggestions so tab completion only shows subcommands
                 .then(Commands.argument("name", StringArgumentType.word())
                         .executes(this::run))
@@ -70,7 +84,7 @@ public final class ScriptsCommand {
     }
 
     private int openMenu(final CommandContext<CommandSourceStack> context) {
-        ScriptManagerDialog.open(player(context));
+        ScriptManagerDialog.open(player(context), store);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -117,6 +131,26 @@ public final class ScriptsCommand {
         return scripts.size();
     }
 
+    private int openStore(final CommandContext<CommandSourceStack> context) {
+        ScriptStorePageView.open(player(context), store, 0);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    /**
+     * Works for offline players too, as long as they've joined this server before
+     */
+    private int openStoreFor(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        final String name = StringArgumentType.getString(context, "player");
+        final OfflinePlayer owner = Bukkit.getOfflinePlayerIfCached(name);
+        if (owner == null) {
+            throw UNKNOWN_PLAYER.create(name);
+        }
+
+        final String ownerName = owner.getName() == null ? name : owner.getName();
+        ScriptStorePageView.openOwner(player(context), store, owner.getUniqueId(), ownerName);
+        return Command.SINGLE_SUCCESS;
+    }
+
     private int stop(final CommandContext<CommandSourceStack> context) {
         final int stopped = executor.cancelOwnedBy(player(context).getUniqueId());
         if (stopped == 0) {
@@ -133,6 +167,14 @@ public final class ScriptsCommand {
             for (String name : PlayerStorage.getScripts(player)) {
                 if (name.startsWith(prefix)) builder.suggest(name);
             }
+        }
+        return builder.buildFuture();
+    }
+
+    private CompletableFuture<Suggestions> suggestPlayers(final CommandContext<CommandSourceStack> context, final SuggestionsBuilder builder) {
+        final String prefix = builder.getRemainingLowerCase();
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.getName().toLowerCase(Locale.ROOT).startsWith(prefix)) builder.suggest(online.getName());
         }
         return builder.buildFuture();
     }

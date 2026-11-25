@@ -9,6 +9,7 @@ import sh.miles.dialogkit.DialogScreen;
 import sh.miles.dialogkit.element.CustomElement;
 import sh.miles.dialogkit.input.TextDialogField;
 import sh.miles.dialogkit.shape.BinaryDialogShape;
+import sh.miles.powerai.data.MarketplaceStore;
 import sh.miles.powerai.util.PlayerStorage;
 
 import java.util.Locale;
@@ -22,24 +23,24 @@ public class ScriptViewDialog extends DialogScreen {
 
     public static final int MAX_SCRIPT_LENGTH = 8192;
 
-    public ScriptViewDialog() {
-        this(null, null, null, null);
+    public ScriptViewDialog(MarketplaceStore store) {
+        this(store, null, null, null, null);
     }
 
-    public ScriptViewDialog(String name, String content) {
-        this(name, name, content, null);
+    public ScriptViewDialog(MarketplaceStore store, String name, String content) {
+        this(store, name, name, content, null);
     }
 
 
-    private ScriptViewDialog(String originalName, String name, String content, Component error) {
+    private ScriptViewDialog(MarketplaceStore store, String originalName, String name, String content, Component error) {
         super.setTitle(text(originalName == null ? "New Script" : "Edit Script: " + originalName));
         if (error != null) {
             super.addText(error);
         }
 
         BinaryDialogShape shape = new BinaryDialogShape();
-        shape.setOptionOne(new SaveElement(originalName));
-        shape.setOptionTwo(new CancelElement());
+        shape.setOptionOne(new SaveElement(store, originalName));
+        shape.setOptionTwo(new CancelElement(store));
         super.setShape(shape);
 
         TextDialogField scriptName = new TextDialogField();
@@ -64,9 +65,11 @@ public class ScriptViewDialog extends DialogScreen {
     }
 
     private static class SaveElement extends CustomElement {
+        private final MarketplaceStore store;
         private final String originalName;
 
-        private SaveElement(String originalName) {
+        private SaveElement(MarketplaceStore store, String originalName) {
+            this.store = store;
             this.originalName = originalName;
             setText(text("Save Script"));
             setTooltip(text("Saves the current player script"));
@@ -90,12 +93,12 @@ public class ScriptViewDialog extends DialogScreen {
 
             if (error != null) {
                 // reopen with what the player typed so their work isn't lost
-                player.showDialog(new ScriptViewDialog(originalName, rawName, scriptContent, text(error, NamedTextColor.RED)).compile());
+                player.showDialog(new ScriptViewDialog(store, originalName, rawName, scriptContent, text(error, NamedTextColor.RED)).compile());
                 return;
             }
 
             if (!PlayerStorage.saveScript(player, scriptName, scriptContent)) {
-                player.showDialog(new ScriptViewDialog(originalName, rawName, scriptContent, text("Failed to save the script", NamedTextColor.RED)).compile());
+                player.showDialog(new ScriptViewDialog(store, originalName, rawName, scriptContent, text("Failed to save the script", NamedTextColor.RED)).compile());
                 return;
             }
 
@@ -104,12 +107,15 @@ public class ScriptViewDialog extends DialogScreen {
                 PlayerStorage.deleteScript(player, originalName);
             }
 
-            ScriptManagerDialog.open(player);
+            ScriptManagerDialog.open(player, store);
         }
     }
 
     private static class CancelElement extends CustomElement {
-        private CancelElement() {
+        private final MarketplaceStore store;
+
+        private CancelElement(MarketplaceStore store) {
+            this.store = store;
             setText(text("Cancel"));
             setTooltip(text("Leave without saving the script"));
         }
@@ -117,7 +123,7 @@ public class ScriptViewDialog extends DialogScreen {
         @Override
         public void accept(final DialogResponseView response, final Audience audience) {
             var player = assertPlayer(audience);
-            ScriptManagerDialog.open(player);
+            ScriptManagerDialog.open(player, store);
         }
     }
 }

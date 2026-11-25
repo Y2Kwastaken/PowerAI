@@ -83,6 +83,7 @@ public class DialogScreen {
         Preconditions.checkArgument(shape != null, "shape must not be null");
 
         DialogBase.Builder base = DialogBase.builder(this.title);
+        base.pause(false);
         base.canCloseWithEscape(this.closeWithEscape);
         if (this.afterAction != null) {
             base.afterAction(this.afterAction);
